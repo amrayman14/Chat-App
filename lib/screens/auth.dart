@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -10,9 +9,21 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   var _isLogin = true;
+  final _formKey = GlobalKey<FormState>();
+  var _enteredEmail = '';
+  var _enteredPassword = '';
+  void _submit(){
+    final isValidate = _formKey.currentState!.validate();
+    if(isValidate){
+      _formKey.currentState!.save();
+      print(_enteredEmail);
+      print(_enteredPassword);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -28,45 +39,71 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: 200,
                 child: Image.asset('assets/images/chat.png'),
               ),
-               Card(
+              Card(
                 margin: const EdgeInsets.all(20),
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Form(
+                      key: _formKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                         const TextField(
-                            decoration: InputDecoration(
-                              labelText: "Email address"
-                            ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                                labelText: "Email address"),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
+                            validator: (value) {
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  !value.contains("@")) {
+                                return "Email address not valid";
+                              }
+                              return null;
+                            },
+                            onSaved: (value){
+                              _enteredEmail = value!;
+                            },
                           ),
-                         const TextField(
-                            decoration: InputDecoration(
-                                labelText: "Password"
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: "Password",
                             ),
                             obscureText: true,
+                            validator: (value) {
+                              if (value == null ||
+                                  value.trim().length < 6
+                                ) {
+                                return "Password not valid";
+                              }
+                              return null;
+                            },
+                            onSaved: (value){
+                              _enteredPassword = value!;
+                            },
                           ),
-                          const SizedBox(height: 16,),
+                          const SizedBox(
+                            height: 16,
+                          ),
                           ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primaryContainer
-                            ),
-                              onPressed: (){},
-                              child: Text(_isLogin ? "Login" : "SignUp")
-                          ),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer),
+                              onPressed: _submit,
+                              child: Text(_isLogin ? "Login" : "SignUp")),
                           TextButton(
-                              onPressed: (){
+                              onPressed: () {
                                 _isLogin = !_isLogin;
                               },
-                              child: Text(_isLogin ? "Create new account" : "already have account")
-                          )
+                              child: Text(_isLogin
+                                  ? "Create new account"
+                                  : "already have account"))
                         ],
-                    ),),
+                      ),
+                    ),
                   ),
                 ),
               )
