@@ -21,20 +21,23 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
     _formKey.currentState!.save();
-    if (_isLogin) {
-    } else {
-      try {
-        final userCreated = await _firebase.createUserWithEmailAndPassword(
+    try {
+      if (_isLogin) {
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCreated);
-      } on FirebaseAuthException catch (err) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(err.message ?? "Authentication Failed"),
-          ),
-        );
+        print(userCredentials);
+      } else {
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+        print(userCredentials);
       }
+    } on FirebaseAuthException catch (err) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err.message ?? "Authentication Failed"),
+        ),
+      );
     }
   }
 
@@ -112,7 +115,9 @@ class _AuthScreenState extends State<AuthScreen> {
                               child: Text(_isLogin ? "Login" : "SignUp")),
                           TextButton(
                               onPressed: () {
-                                _isLogin = !_isLogin;
+                                setState(() {
+                                  _isLogin = !_isLogin;
+                                });
                               },
                               child: Text(_isLogin
                                   ? "Create new account"
