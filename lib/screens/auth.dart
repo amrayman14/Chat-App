@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+var _firebase = FirebaseAuth.instance;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -12,14 +15,29 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   var _enteredEmail = '';
   var _enteredPassword = '';
-  void _submit(){
+  void _submit() async {
     final isValidate = _formKey.currentState!.validate();
-    if(isValidate){
-      _formKey.currentState!.save();
-      print(_enteredEmail);
-      print(_enteredPassword);
+    if (!isValidate) {
+      return;
+    }
+    _formKey.currentState!.save();
+    if (_isLogin) {
+    } else {
+      try {
+        final userCreated = await _firebase.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+        print(userCreated);
+      } on FirebaseAuthException catch (err) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(err.message ?? "Authentication Failed"),
+          ),
+        );
+      }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               }
                               return null;
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enteredEmail = value!;
                             },
                           ),
@@ -73,14 +91,12 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             obscureText: true,
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().length < 6
-                                ) {
+                              if (value == null || value.trim().length < 6) {
                                 return "Password not valid";
                               }
                               return null;
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enteredPassword = value!;
                             },
                           ),
