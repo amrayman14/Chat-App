@@ -27,7 +27,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _isAuthenticating = true;
     });
     final isValidate = _formKey.currentState!.validate();
-    if (!isValidate || _selectedImage == null && _isLogin) {
+    if (!isValidate || _selectedImage == null && !_isLogin) {
       return;
     }
     _formKey.currentState!.save();
@@ -51,7 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
           'username': 'working on it..',
           'email': _enteredEmail,
           'imageUrl': imageUrl,
-        });
+        }).then((value){});
       }
     } on FirebaseAuthException catch (err) {
       ScaffoldMessenger.of(context).clearSnackBars();
