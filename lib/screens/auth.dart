@@ -20,6 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   var _enteredEmail = '';
   var _enteredPassword = '';
+  var _enteredUsername = '';
   File? _selectedImage;
   var _isAuthenticating = false;
   void _submit() async {
@@ -48,7 +49,7 @@ class _AuthScreenState extends State<AuthScreen> {
             .collection('user')
             .doc(userCredentials.user!.uid)
             .set({
-          'username': 'working on it..',
+          'username': _enteredUsername,
           'email': _enteredEmail,
           'imageUrl': imageUrl,
         }).then((value){});
@@ -117,6 +118,22 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                             onSaved: (value) {
                               _enteredEmail = value!;
+                            },
+                          ),
+                          if(!_isLogin)
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: "Username",
+                            ),
+                            autocorrect: false,
+                            validator: (value) {
+                              if (value == null || value.trim().length < 4) {
+                                return "Enter at least 4 character";
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredUsername = value!;
                             },
                           ),
                           TextFormField(
